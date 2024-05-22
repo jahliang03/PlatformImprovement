@@ -16,6 +16,9 @@ class Platformer extends Phaser.Scene {
 
     create() {
 
+        // update instruction text
+        document.getElementById('description').innerHTML = '<h2>Mushroom Collector Platform<br>left arrow - move left, right arrow - move right, up arrow - jump <br>Collect all the mushrooms to beat game!</h2>'
+        
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
         this.map = this.add.tilemap("platformer-level-1", 18, 18, 45, 25);
