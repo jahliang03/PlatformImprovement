@@ -11,6 +11,7 @@ class Platformer extends Phaser.Scene {
         this.JUMP_VELOCITY = -600;
         this.PARTICLE_VELOCITY = 50;
         this.SCALE = 2.0;   
+
     }
 
     create() {
@@ -18,8 +19,17 @@ class Platformer extends Phaser.Scene {
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
         this.map = this.add.tilemap("platformer-level-1", 18, 18, 45, 25);
-        this.coinText = this.add.text(10, 60, 'Coins: 0', { fontSize: '10px', fill: '#FFFFFF' });
-        this.mushroomText = this.add.text(10, 75, 'Mushrooms: 0', { fontSize: '10px', fill: '#FFFFFF' });
+        
+        // load out
+        this.coinText = this.add.text(this.cameras.main.scrollX + 10, this.cameras.main.scrollY + 60, 'Coins: 0', { fontSize: '10px', fill: '#4169E1' });
+        //this.coinText.setScrollFactor(0); 
+        this.mushroomText = this.add.text(this.cameras.main.scrollX + 10, this.cameras.main.scrollY + 75, 'Mushrooms: 0', { fontSize: '10px', fill: '#4169E1' });
+        //this.mushroomText.setScrollFactor(0); 
+        this.coinText.setDepth(100);
+        this.mushroomText.setDepth(100);
+
+        // load sound 
+        this.collectSound = this.sound.add('collectSound', { volume: 0.5 });
         
         // Add a tileset to the map
         // First parameter: name we gave the tileset in Tiled
@@ -52,7 +62,6 @@ class Platformer extends Phaser.Scene {
             frame: 128
         });
 
-
         // Since createFromObjects returns an array of regular Sprites, we need to convert 
         // them into Arcade Physics sprites (STATIC_BODY, so they don't move) 
         this.physics.world.enable(this.coins, Phaser.Physics.Arcade.STATIC_BODY);
@@ -68,14 +77,13 @@ class Platformer extends Phaser.Scene {
         this.mushroomGroup = this.add.group(this.mushrooms);
 
         // set up player avatar
-        my.sprite.player = this.physics.add.sprite(30, 345, "platformer_characters", "tile_0000.png");
+        my.sprite.player = this.physics.add.sprite(30, 345, "platformer_characters", "tile_0004.png");
         my.sprite.player.setCollideWorldBounds(true);
 
         // Enable collision handling
         this.physics.add.collider(my.sprite.player, this.groundLayer);
 
         this.physics.add.collider(my.sprite.player, this.waterLayer, this.handleWaterCollision, null, this);
-        this.physics.add.collider(my.sprite.player, this.flowerLayer);
 
      
         // Handle collision detection with coins
@@ -83,14 +91,15 @@ class Platformer extends Phaser.Scene {
             obj2.destroy(); // remove coin on overlap
             this.coinsCollected += 1; // increment coins collected
             this.coinText.setText('Coins: ' + this.coinsCollected); // update coin text
+            this.collectSound.play();
         });
 
         this.physics.add.overlap(my.sprite.player, this.mushroomGroup, (obj1, obj2) => {
             obj2.destroy();  // Remove the mushroom from the game
             this.mushroomsCollected += 1;  // Correctly increment the count
             this.mushroomText.setText('Mushrooms: ' + this.mushroomsCollected);  // Update the display text
-
-            if (this.mushroomsCollected >= 10) {  // Check if 10 mushrooms have been collected
+            this.collectSound.play();
+            if (this.mushroomsCollected >= 13) {  // Check if 10 mushrooms have been collected
                 this.winGame();  // Trigger the win condition
             }
         });
@@ -119,7 +128,6 @@ class Platformer extends Phaser.Scene {
 
         my.vfx.walking.stop();
         
-
         // add camera code here
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.cameras.main.startFollow(my.sprite.player, true, 0.25, 0.25); // (target, [,roundPixels][,lerpX][,lerpY])
@@ -166,7 +174,6 @@ class Platformer extends Phaser.Scene {
             my.vfx.walking.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
 
             // Only play smoke effect if touching the ground
-
             if (my.sprite.player.body.blocked.down) {
                 my.vfx.walking.start();
             }

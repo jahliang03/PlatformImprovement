@@ -19,6 +19,7 @@ let config = {
     },
     width: 1200,
     height: 800,
+    backgroundColor: '#F0FFFF',
     scene: [Load, Platformer]
 }
 
