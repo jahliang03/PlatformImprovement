@@ -5,11 +5,11 @@ class Platformer extends Phaser.Scene {
 
     init() {
         // variables and settings
-        this.ACCELERATION = 400;
-        this.DRAG = 500;    // DRAG < ACCELERATION = icy slide
-        this.physics.world.gravity.y = 1500;
+        this.ACCELERATION = 300;
+        this.DRAG = 300;    // DRAG < ACCELERATION = icy slide
+        this.physics.world.gravity.y = 1400;
         this.JUMP_VELOCITY = -600;
-        this.PARTICLE_VELOCITY = 50;
+        this.PARTICLE_VELOCITY = 10;
         this.SCALE = 2.0;   
 
     }
@@ -117,9 +117,9 @@ class Platformer extends Phaser.Scene {
 
         // TODO: Add movement vfx here
         my.vfx.walking = this.add.particles(0, 0, "kenny-particles", {
-            frame: ['smoke_03.png', 'smoke_09.png'],
+            frame: ['smoke_01.png', 'smoke_09.png'],
             // TODO: Try: add random: true
-            scale: {start: 0.03, end: 0.1},
+            scale: {start: 0.02, end: 0.04},
             // TODO: Try: maxAliveParticles: 8,
             lifespan: 350,
             // TODO: Try: gravityY: -400,
@@ -152,16 +152,13 @@ class Platformer extends Phaser.Scene {
             my.sprite.player.resetFlip();
             my.sprite.player.anims.play('walk', true);
             // TODO: add particle following code here
-            my.vfx.walking.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-10, my.sprite.player.displayHeight/2-5, false);
+            my.vfx.walking.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-4, my.sprite.player.displayHeight/2-1, false);
 
-            my.vfx.walking.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
+            my.vfx.walking.setParticleSpeed(this.PARTICLE_VELOCITY, 0.5);
 
             // Only play smoke effect if touching the ground
-
             if (my.sprite.player.body.blocked.down) {
-
                 my.vfx.walking.start();
-
             }
 
         } else if(cursors.right.isDown) {
@@ -169,9 +166,9 @@ class Platformer extends Phaser.Scene {
             my.sprite.player.setFlip(true, false);
             my.sprite.player.anims.play('walk', true);
             // TODO: add particle following code here
-            my.vfx.walking.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-20, my.sprite.player.displayHeight/2-2, false);
+            my.vfx.walking.startFollow(my.sprite.player, my.sprite.player.displayWidth/8-9, my.sprite.player.displayHeight/2-3, false);
 
-            my.vfx.walking.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
+            my.vfx.walking.setParticleSpeed(this.PARTICLE_VELOCITY, 0.5);
 
             // Only play smoke effect if touching the ground
             if (my.sprite.player.body.blocked.down) {
