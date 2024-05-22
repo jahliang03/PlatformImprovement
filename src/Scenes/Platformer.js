@@ -38,8 +38,7 @@ class Platformer extends Phaser.Scene {
         this.farmset = this.map.addTilesetImage("kenny_tilemap_packed_farm", "tilemap_tiles");
         // Create a layer
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
-        this.waterLayer = this.map.createLayer("Water", this.tileset, 0, 0);
-
+    
         // Make it collidable
         this.groundLayer.setCollisionByProperty({
             collides: true
@@ -62,6 +61,22 @@ class Platformer extends Phaser.Scene {
             frame: 128
         });
 
+        // Enemy setup
+        this.enemy = this.physics.add.sprite(900, 200, 'platformer_characters', 'tile_0008.png');
+        this.enemy.setCollideWorldBounds(true);
+        this.enemy.setVelocityX(100);  // Initial horizontal velocity
+        this.enemy.body.maxVelocity.x = 100;  // Max horizontal velocity
+
+        // Define movement boundaries for the enemy
+        this.enemy.minX = 800;  // Minimum x position
+        this.enemy.maxX = 1000; // Maximum x position
+
+        // Collider with ground
+        this.physics.add.collider(this.enemy, this.groundLayer);
+
+        // Collider with player that triggers game over
+        this.physics.add.collider(this.enemy, my.sprite.player, this.gameOver, null, this);
+
         // Since createFromObjects returns an array of regular Sprites, we need to convert 
         // them into Arcade Physics sprites (STATIC_BODY, so they don't move) 
         this.physics.world.enable(this.coins, Phaser.Physics.Arcade.STATIC_BODY);
@@ -69,7 +84,6 @@ class Platformer extends Phaser.Scene {
 
         this.physics.world.enable(this.mushrooms, Phaser.Physics.Arcade.STATIC_BODY);
         
-    
         // Create a Phaser group out of the array this.coins
         // This will be used for collision detection below.
         this.coinGroup = this.add.group(this.coins);
@@ -84,7 +98,6 @@ class Platformer extends Phaser.Scene {
         this.physics.add.collider(my.sprite.player, this.groundLayer);
 
         this.physics.add.collider(my.sprite.player, this.waterLayer, this.handleWaterCollision, null, this);
-
      
         // Handle collision detection with coins
         this.physics.add.overlap(my.sprite.player, this.coinGroup, (obj1, obj2) => {
@@ -134,6 +147,7 @@ class Platformer extends Phaser.Scene {
         this.cameras.main.setDeadzone(50, 50);
         this.cameras.main.setZoom(this.SCALE);
     }
+
     winGame() {
         // Display win message and restart game option
         let winText = this.add.text(this.cameras.main.centerX - 150, this.cameras.main.centerY - 170, 'You Win! Press R to Restart', {
@@ -145,8 +159,25 @@ class Platformer extends Phaser.Scene {
             this.scene.restart();
         });
     }
-    
+
+    gameOver(player, enemy) {
+        this.physics.pause(); // Stops all physics activity
+        player.setTint(0xff0000); // Change player color to red on game over
+        let gameOverText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Game Over! Press R to Restart', {
+            fontSize: '32px',
+            fill: '#FF0000'
+        }).setOrigin(0.5);
+        this.rKey.on('down', () => {
+            this.scene.restart(); // Restart the scene
+        });
+    }
+
     update() {
+
+        if (this.enemy.x >= 1000 || this.enemy.x <= 800) {
+            this.enemy.setVelocityX(-this.enemy.body.velocity.x);
+        }
+        
         if(cursors.left.isDown) {
             my.sprite.player.setAccelerationX(-this.ACCELERATION);
             my.sprite.player.resetFlip();
